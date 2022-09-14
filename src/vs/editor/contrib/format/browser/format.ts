@@ -256,10 +256,12 @@ export async function formatDocumentRangesWithProvider(
 	}
 
 	if (isCodeEditor(editorOrModel)) {
-		// use editor to apply edits
+		// use editor to apply edits, preserving the scroll position of the editor's position
+		const oldScrollTop = editorOrModel.getTopForLineNumber(editorOrModel.getPosition().lineNumber);
 		FormattingEdit.execute(editorOrModel, allEdits, true);
+		const newScrollTop = editorOrModel.getTopForLineNumber(editorOrModel.getPosition().lineNumber);
+		editorOrModel.setScrollTop(editorOrModel.getScrollTop() + newScrollTop - oldScrollTop, ScrollType.Immediate);
 		alertFormattingEdits(allEdits);
-		editorOrModel.revealPositionInCenterIfOutsideViewport(editorOrModel.getPosition(), ScrollType.Immediate);
 
 	} else {
 		// use model to apply edits
@@ -345,12 +347,14 @@ export async function formatDocumentWithProvider(
 	}
 
 	if (isCodeEditor(editorOrModel)) {
-		// use editor to apply edits
+		// use editor to apply edits, preserving the scroll position of the editor's position
+		const oldScrollTop = editorOrModel.getTopForLineNumber(editorOrModel.getPosition().lineNumber);
 		FormattingEdit.execute(editorOrModel, edits, mode !== FormattingMode.Silent);
+		const newScrollTop = editorOrModel.getTopForLineNumber(editorOrModel.getPosition().lineNumber);
+		editorOrModel.setScrollTop(editorOrModel.getScrollTop() + newScrollTop - oldScrollTop, ScrollType.Immediate);
 
 		if (mode !== FormattingMode.Silent) {
 			alertFormattingEdits(edits);
-			editorOrModel.revealPositionInCenterIfOutsideViewport(editorOrModel.getPosition(), ScrollType.Immediate);
 		}
 
 	} else {
